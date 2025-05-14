@@ -1,0 +1,1 @@
+# ClickTextCaptcha-generator
