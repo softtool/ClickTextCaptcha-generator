@@ -1,3 +1,5 @@
+import uuid
+
 from PIL import Image, ImageDraw, ImageFont
 import random
 from captcha.image import ImageCaptcha
@@ -77,6 +79,14 @@ class CustomImageCaptcha(ImageCaptcha):
 
             # 绘制字符
             draw.text((x, y), char, fill=color, font=font)
+
+            # 生成UUID    # 创建新图像用于单个字符
+            unique_id = str(uuid.uuid4())
+            char_image = Image.new('RGBA', (char_width + 20, char_height + 20), (0, 0, 0, 0))
+            char_draw = ImageDraw.Draw(char_image)
+            char_draw.text((10, 10), char, fill=color, font=font)
+            saved_path = r"../../../images/character/ClickTextCaptcha/train/"
+            char_image.save(f"{saved_path}{char}_{unique_id}.png")
 
             # 记录该字符占用的区域
             occupied_boxes.append(new_box)
