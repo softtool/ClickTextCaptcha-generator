@@ -26,6 +26,7 @@
 - 支持常用汉字过滤（避免生僻字）
 - 可选是否添加哈希值防止重复文件名
 """
+import uuid
 
 # 修改 gen_by_image_captcha.py 中的导入语句为绝对导入
 from generate.character.ClickTextCaptcha.CustomImageCaptcha import CustomImageCaptcha
@@ -48,7 +49,8 @@ COMMON_CHINESE_CHARS = (
     "大小多少高矮胖瘦快慢冷热干净漂亮清楚明白容易困难认真仔细简单复杂安静热闹有趣无聊"
     # 更多常用字...
 )
-
+WAEP_MGA=6
+IS_SAVE_IMAGE=False
 def generate_random_captcha(length=4, use_digits=True, use_letters=True, use_chinese=False):
     """
     生成随机验证码文本
@@ -208,7 +210,7 @@ def generate_captcha_image(captcha_text, use_chinese=False):
     )
 
     captcha_image = image_captcha.create_captcha(captcha_text,  drawings=[
-        lambda img: warp(img, mag=26),     # 波浪扭曲
+        lambda img: warp(img, mag=WAEP_MGA),     # 波浪扭曲
         lambda img: img.filter(SMOOTH)    # 平滑处理
     ])
     # 假设 captcha_image 是 RGBA 模式的验证码图像
@@ -219,14 +221,17 @@ def generate_captcha_image(captcha_text, use_chinese=False):
     save_dir = os.path.abspath(os.path.join(__file__, '..','..', '..', '..', 'images', 'character', 'ClickTextCaptcha'))
     os.makedirs(save_dir, exist_ok=True)
 
-    # 保存图片
-    if ADD_HASH:
-        import hashlib
-        random_hash = hashlib.md5(captcha_text.encode()).hexdigest()[:8]
-        filename = f"{captcha_text}_{random_hash}.png"
-    else:
-        filename = f"{captcha_text}.png"
-    background_image.save(os.path.join(save_dir, filename))
+
+    if IS_SAVE_IMAGE:
+        # 保存图片
+        if ADD_HASH:
+            import hashlib
+            # random_hash = hashlib.md5(captcha_text.encode()).hexdigest()[:8]
+            random_hash = str(uuid.uuid4())
+            filename = f"{captcha_text}_{random_hash}.png"
+        else:
+            filename = f"{captcha_text}.png"
+        background_image.save(os.path.join(save_dir, filename))
 
 
 def batch_generate_captchas(count=10, length=4, use_digits=True, use_letters=True, use_chinese=False):
@@ -292,4 +297,4 @@ if __name__ == "__main__":
     #     )
 
 
-    batch_generate_captchas(3, use_digits=False, use_letters=False, use_chinese=True)
+    batch_generate_captchas(10000, use_digits=False, use_letters=False, use_chinese=True)
